@@ -111,116 +111,309 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
             1,
             14400,
             3600,
-            ÍŒˆŒˆØ›ØÚĞ[œİÙ\•ˆ
-NÂ‚ˆÙXÚ\Ú[ÛœËÛX\Š
-NÂ‚ˆÙœÔÙ\™\‹•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™È\[š]X[^™Yˆ[™Ú[^×Ù[™Ú[NÈ[Y[İ]\Ï^×İ[Y[İ]\ßNÈ˜Z[[ÙO^×Ù˜Z[[Ù_NÈXYÛ›ÜİXÓÙÙÚ[™Ï^×ÙXYÛ›ÜİXÓÙÙÚ[™ßKˆŠNÂˆ™]\›ˆ›Ø™TÛXŞTÙ\™\\Ş[˜Ê
-NÂˆB‚ˆX›XÈ\Ş[˜È\ÚÏœÔ™\]Y\İÛÛ›Û\Xİ[ÛˆÙ]™\]Y\İXİ[Û\Ş[˜ÊˆœÑ]YÜ˜[H™\]Y\İˆT[™Ú[™[[İQTˆœÕ˜[œÜÜ›İØÛÛ›İØÛÛ
-BˆÂˆYˆ
-ÙXYÛ›ÜİXÓÙÙÚ[™ÊBˆÂˆİš[™ÈHH™\]Y\İ”]Y\İ[Û‹Ûİ[ˆˆÈİš[™Ë’›Ú[Š‹‹™\]Y\İ”]Y\İ[Û‹”Ù[Xİ
-Oˆ	Ş“˜[Y_KŞŞ•\_HŠJBˆˆ›Ë\]Y\İ[ÛˆÂˆÙœÔÙ\™\Ë•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™È[\˜Ù\Y]Y\Hœ›ÛHÜ™[[İQTHšXHÜ›İØÛÛNˆÜ_HŠNÂˆB‚ˆXÚ\Ú[Û”™\ÜÛœÙQÈXÚ\Ú[ÛˆH]ØZ]]Y\TÛXŞP\Ş[˜Ê™\]Y\İ™[[İQT›İØÛÛ•Ôİš[™Ê
-JNÂˆ]XÚ\Ú[ÛŠ™\]Y\İ™[[İQTXÚ\Ú[ÛŠNÂ‚ˆËÈH™\]Y\İÛÛ›Û\ˆ\È\ÙYÈØ\\™H›İØÛÛ[™›Ü›X][Ûˆ™Y›Ü™HH”ÈÛÜ™H[œË‚ˆËÈXİX[”È›ØÚÚ[™È\È\™›Ü›YYHQœÔ™\]Y\İ›ØÚÚ[™Ò[™\ˆÛÈÙHØ[ˆŞ[\Ú^™BˆËÈ–ÓPRS‹Ó“ÑUKŞ™\›ËXY™\ÜÈ™\ÜÛœÙ\È˜]\ˆ[ˆ™Z[™È[Z]YÈ‘Q•TÑQÙ›Ü‚ˆ™]\›ˆœÔ™\]Y\İÛÛ›Û\Xİ[Û‹[İÎÂˆB‚ˆX›XÈ\ÚÏ›ÛÛˆ\Ğ[İÙY\Ş[˜ÊœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQT
-BˆÂˆYˆ
-WØ\\ÜĞZ[[›ØÚÚ[™ÓÛ[İÊBˆ™]\›ˆ\ÚË‘œ›ÛT™\İ[
-˜[ÙJNÂ‚ˆYˆ
-QÙ]XÚ\Ú[ÛŠ™\]Y\İ™[[İQTÛÛœİ[YNˆ˜[ÙKİ]XÚ\Ú[Û”™\ÜÛœÙQÏÈXÚ\Ú[ÛŠH	‰ˆXÚ\Ú[Ûˆ\È›İ[
-Bˆ™]\›ˆ\ÚË‘œ›ÛT™\İ[
-YXÚ\Ú[Û‹˜›ØÚÊNÂ‚ˆ™]\›ˆ\ÚË‘œ›ÛT™\İ[
-˜[ÙJNÂˆB‚ˆX›XÈ\Ş[˜È\ÚÏœÑ]YÜ˜[OÏˆ›ØÙ\ÜÔ™\]Y\İ\Ş[˜ÊœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQT
-BˆÂˆËÈ]XÚš]][H[™HX[›Ü›YYÙ[\K\]Y\İ[ÛˆXÚÙ]È›Ü›X[K‚ˆYˆ
-™\]Y\İ”]Y\İ[Û‹Ûİ[OH
-Bˆ™]\›ˆ[Â‚ˆXÚ\Ú[Û”™\ÜÛœÙQÈXÚ\Ú[ÛÂˆYˆ
-UQÙ]XÚ\Ú[ÛŠ™\]Y\İ™[[İQTÛÛœİ[YNˆYKİ]XÚ\Ú[Û”™\ÜÛœÙQÏÈØXÚY
-HØXÚY\È[
-BˆXÚ\Ú[ÛˆH]ØZ]]Y\TÛXŞP\Ş[˜Ê™\]Y\İ™[[İQT[
-NÂˆ[ÙBˆXÚ\Ú[ÛˆHØXÚYÂ‚ˆYˆ
-YXÚ\Ú[Û‹˜›ØÚÊBˆ™]\›ˆ[Â‚ˆ™]\›ˆZ[›ØÚÙY™\ÜÛœÙJ™\]Y\İXÚ\Ú[ÛŠNÂˆB‚ˆš]˜]H\Ş[˜È\ÚÏXÚ\Ú[Û”™\ÜÛœÙQÏˆ]Y\TÛXŞP\Ş[˜ÊœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQTİš[™ÏÈ›İØÛÛ
-BˆÂˆBˆÂˆ\İ]Y\İ[Û‘Ïˆ]Y\İ[ÛœÈH™\]Y\İ”]Y\İ[Û‚ˆ”Ù[Xİ
-HOˆ™]È]Y\İ[Û‘ÊK“˜[YKK•\K•Ôİš[™Ê
-KKÛ\ÜË•Ôİš[™Ê
-JJBˆ•Ó\İ
+            604800,
+            _blockAnswerTtl
+        );
 
-NÂ‚ˆ\Ú[™ÈY[[ÜTİ™X[HÚ\™HH™]Ê
-NÂˆ™\]Y\İ•Üš]UÊÚ\™JNÂ‚ˆœÑÈœÈH™]Êˆ™\]Y\İ’Y[YšY\‹ˆ™\]Y\İ’\Ô™\ÜÛœÙKˆ™\]Y\İ“ÔÓÑK•Ôİš[™Ê
-Kˆ™\]Y\İ]]Üš]]]™P[œİÙ\‹ˆ™\]Y\İ•[˜Ø][Û‹ˆ™\]Y\İ”™Xİ\œÚ[Û‘\Ú\™Yˆ™\]Y\İ”™Xİ\œÚ[Û]˜Z[X›Kˆ™\]Y\İ]][XÑ]Kˆ™\]Y\İÚXÚÚ[™Ñ\ØX›Yˆ™\]Y\İ”ÓÑK•Ôİš[™Ê
-Kˆ™\]Y\İ‘Q”È\È›İ[ˆ™\]Y\İ”]Y\İ[Û‹Ûİ[ˆ™\]Y\İ[œİÙ\‹Ûİ[ˆ™\]Y\İ]]Üš]KÛİ[ˆ™\]Y\İY][Û˜[Ûİ[ˆÛÛ™\•Ğ˜\ÙMİš[™ÊÚ\™K•Ğ\œ˜^J
-JKˆ]Y\İ[ÛœÂˆ
-NÂ‚ˆXÚ\Ú[Û”™\]Y\İÈ^[ØYH™]ÊˆÜÙ\™\’Yˆ›İØÛÛˆ™]ÈÛY[Ê™[[İQTY™\ÜË•Ôİš[™Ê
-K™[[İQT”Ü
-KˆœÂˆ
-NÂ‚ˆİš[™ÈœÛÛˆHœÛÛ”Ù\šX[^™\‹”Ù\šX[^™J^[ØYÚœÛÛ“Ü[ÛœÊNÂˆ\Ú[™È™\]Y\İY\ÜØYÙH™\]Y\İH™]ÊY]Ù”ÜİÙ[™Ú[
-BˆÂˆÛÛ[H™]Èİš[™ĞÛÛ[
-œÛÛ‹[˜ÛÙ[™Ë•U˜\XØ][Û‹ÚœÛÛˆŠBˆNÂˆ\Ú[™È™\ÜÛœÙSY\ÜØYÙH™\ÜÛœÙHH]ØZ]ÚÛY[”Ù[™\Ş[˜Ê™\]Y\İÛÛ\][Û“Ü[Û‹”™\ÜÛœÙRXY\œÔ™XY
-NÂˆİš[™È›ÙHH]ØZ]™\ÜÛœÙKÛÛ[”™XY\Ôİš[™Ğ\Ş[˜Ê
-NÂˆYˆ
-\™\ÜÛœÙK’\ÔİXØÙ\ÜÔİ]\ĞÛÙJBˆÂˆİš[™ÈÛÛ\Xİ›ÙHH›ÙK“[™İˆLLˆÈ›ÙVË‹LL—H
-È‹‹‹ˆˆˆ›ÙNÂˆ›İÈ™]È™\]Y\İ^Ù\[ÛŠ	”ÛXŞHÙ\™\ˆ™]\›™YÊ[
-\™\ÜÛœÙK”İ]\ĞÛÙ_HÜ™\ÜÛœÙK”™X\ÛÛ”˜\Ù_NˆØÛÛ\Xİ›Ù_H‹[™\ÜÛœÙK”İ]\ĞÛÙJNÂˆB‚ˆXÚ\Ú[Û”™\ÜÛœÙQÏÈXÚ\Ú[ÛˆHœÛÛ”Ù\šX[^™\‹‘\Ù\šX[^™OXÚ\Ú[Û”™\ÜÛœÙQÏŠ›ÙKÚœÛÛ“Ü[ÛœÊNÂˆYˆ
-XÚ\Ú[Ûˆ\È[
-Bˆ›İÈ™]È[˜[Y]Q^Ù\[ÛŠ”ÛXŞHÙ\™\ˆ™]\›™Y[ˆ[\HXÚ\Ú[Û‹ˆŠNÂ‚ˆYˆ
-ÙXYÛ›ÜİXÓÙÙÚ[™ÊBˆÙœÔÙ\™\Ë•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™ÈXÚ\Ú[Ûˆ›ÜˆÜ™[[İQTY™\ÜßNˆ›ØÚÏ^ÙXÚ\Ú[Û‹˜›ØÚßNÈ™X\ÛÛ^ÙXÚ\Ú[Û‹œ™X\ÛÛˆÏÈ›Û™OˆŸNÈØÛÜO^ÙXÚ\Ú[Û‹›X]ÚYÜØÛÜHÏÈ›Û™OˆŸNÈ\İ^ÙXÚ\Ú[Û‹›X]ÚYÛ\İÏÈ›Û™OˆŸKˆŠNÂˆ[ÙHYˆ
-[\›ØÚÙY‘^Ú[™ÙJ™YˆÛÙÙÙYİXØÙ\ÜËJHOH
-BˆÙœÔÙ\™\Ë•Üš]SÙÊ”™[[İHÛXŞH›ØÚÚ[™ÈİXØÙ\ÜÙ[H™XÙZ]™Y]Èš\œİXÚ\Ú[Ûˆœ›ÛHHÛXŞHÙ\™\‹ˆŠNÂ‚ˆ™]\›ˆXÚ\Ú[ÛÂˆBˆØ]Ú
-^Ù\[Ûˆ^
-BˆÂˆÙœÔÙ\™\Ë•Üš]SÙÊ”™[[İHÛXŞH›ØÚÚ[™È\ÛXŞHÛÚİ\˜Z[Yˆˆ
-È^“Y\ÜØYÙJNÂˆ™]\›ˆ™]ÈXÚ\Ú[Û”™\ÜÛœÙQÂˆÂˆ›ØÚÈHÙ˜Z[[ÙHOH˜ÛÜÙY‹ˆ™X\ÛÛˆHÙ˜Z[[ÙHOH˜ÛÜÙYˆÈœÛXŞWİ[˜]˜Z[X›WÙ˜Z[ØÛÜÙYˆˆœÛXŞWİ[˜]˜Z[X›WÙ˜Z[ÛÜ[ˆ‹ˆ™\ÜÛœÙWÛ[ÙHHœ™Y\ÙY‚ˆNÂˆBˆB‚‚ˆš]˜]H\Ş[˜È\ÚÈ›Ø™TÛXŞTÙ\™\\Ş[˜Ê
-BˆÂˆYˆ
-ÙœÔÙ\™\ˆ\È[
-Bˆ™]\›Â‚ˆBˆÂˆ\šH[™Õ\šHH™]ÊÙ[™Ú[œ[™ÈŠNÂˆ\Ú[™È™\]Y\İY\ÜØYÙH™\]Y\İH™]ÊY]Ù‘Ù][™Õ\šJNÂˆ\Ú[™È™\ÜÛœÙSY\ÜØYÙH™\ÜÛœÙHH]ØZ]ÚÛY[”Ù[™\Ş[˜Ê™\]Y\İÛÛ\][Û“Ü[Û‹”™\ÜÛœÙRXY\œÔ™XY
-NÂˆİš[™È›ÙHH]ØZ]™\ÜÛœÙKÛÛ[”™XY\Ôİš[™Ğ\Ş[˜Ê
-NÂ‚ˆYˆ
-™\ÜÛœÙK’\ÔİXØÙ\ÜÔİ]\ĞÛÙJBˆÂˆÙœÔÙ\™\‹•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™ÈÛÛ›™Xİ]š]H›Ø™HİXØÙYYYˆÜ[™Õ\š_HŠNÂˆ™]\›ÂˆB‚ˆİš[™ÈÛÛ\Xİ›ÙHH›ÙK“[™İˆLLˆÈ›ÙVË‹LL—H
-È‹‹‹ˆˆˆ›ÙNÂˆÙœÔÙ\™\‹•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™ÈÛÛ›™Xİ]š]H›Ø™HRSQˆÜ[™Õ\š_H™]\›™YÊ[
-\™\ÜÛœÙK”İ]\ĞÛÙ_HÜ™\ÜÛœÙK”™X\ÛÛ”˜\Ù_NˆØÛÛ\Xİ›Ù_HŠNÂˆBˆØ]Ú
-^Ù\[Ûˆ^
-BˆÂˆÙœÔÙ\™\‹•Üš]SÙÊ	”™[[İHÛXŞH›ØÚÚ[™ÈÛÛ›™Xİ]š]H›Ø™HRSQ›Üˆ×Ù[™Ú[KˆÚXÚÈ[™Ú[Y™\ÜËØÚÙ\ˆ™]ÛÜšÚ[™ËÙš\™]Ø[[™ÛXŞHÙ\šXÙH]˜Z[Xš[]Kˆ‹^
-NÂˆBˆB‚ˆš]˜]HœÑ]YÜ˜[HZ[›ØÚÙY™\ÜÛœÙJœÑ]YÜ˜[H™\]Y\İXÚ\Ú[Û”™\ÜÛœÙQÈXÚ\Ú[ÛŠBˆÂˆYˆ
-ÙœÔÙ\™\ˆ\È[ÜÛØT™XÛÜ™\È[
-Bˆ›İÈ™]È[˜[YÜ\˜][Û‘^Ù\[ÛŠ\XØ][Ûˆ\È›İ[š]X[^™YˆŠNÂ‚ˆœÔ]Y\İ[Û”™XÛÜ™]Y\İ[ÛˆH™\]Y\İ”]Y\İ[Û–ÌNÂˆİš[™È[ÙHH
-XÚ\Ú[Û‹œ™\ÜÛœÙWÛ[ÙHÏÈ›ÛXZ[ˆŠK•ÓİÙ\’[˜\šX[
+        _decisions.Clear();
 
-NÂˆT™XYÛ›S\İœÔ™\Ûİ\˜ÙT™XÛÜ™È[œİÙ\ˆH[ÂˆT™XYÛ›S\İœÔ™\Ûİ\˜ÙT™XÛÜ™È]]Üš]HH[ÂˆœÔ™\ÜÛœÙPÛÙH˜ÛÙNÂ‚ˆİÚ]Ú
-[ÙJBˆÂˆØ\ÙHœ™Y\ÙY‚ˆ˜ÛÙHHœÔ™\ÜÛœÙPÛÙK”™Y\ÙYÂˆœ™XZÎÂ‚ˆØ\ÙH››Ù]H‚ˆ˜ÛÙHHœÔ™\ÜÛœÙPÛÙK“›Ñ\œ›ÜÂˆ]]Üš]HHZ[ÛØP]]Üš]J]Y\İ[Û‹XÚ\Ú[Û‹›X]ÚYÙÛXZ[ŠNÂˆœ™XZÎÂ‚ˆØ\ÙH™\›È‚ˆ˜ÛÙHHœÔ™\ÜÛœÙPÛÙK“›Ñ\œ›ÜÂˆYˆ
-]Y\İ[Û‹•\HOHœÔ™\Ûİ\˜ÙT™XÛÜ™\KJBˆÂˆ[œİÙ\ˆH™]Ö×BˆÂˆ™]ÈœÔ™\Ûİ\˜ÙT™XÛÜ™
-]Y\İ[Û‹“˜[YKœÔ™\Ûİ\˜ÙT™XÛÜ™\KK]Y\İ[Û‹Û\ÜËØ›ØÚĞ[œİÙ\•ˆ™]ÈœĞT™XÛÜ™]JTY™\ÜË[JJBˆNÂˆBˆ[ÙHYˆ
-]Y\İ[Û‹•\HOHœÔ™\Ûİ\˜ÙT™XÛÜ™\KPPPJBˆÂˆ[œİÙ\ˆH™]Ö×BˆÂˆ™]ÈœÔ™\Ûİ\˜ÙT™XÛÜ™
-]Y\İ[Û‹“˜[YKœÔ™\Ûİ\˜ÙT™XÛÜ™\KPPPK]Y\İ[Û‹Û\ÜËØ›ØÚĞ[œİÙ\•ˆ™]ÈœĞPPPT™XÛÜ™]JTY™\ÜË’T[JJBˆNÂˆBˆ[ÙBˆÂˆ]]Üš]HHZ[ÛØP]]Üš]J]Y\İ[Û‹XÚ\Ú[Û‹›X]ÚYÙÛXZ[ŠNÂˆBˆœ™XZÎÂ‚ˆØ\ÙH›ÛXZ[ˆ‚ˆY˜][‚ˆ˜ÛÙHHœÔ™\ÜÛœÙPÛÙK“ÛXZ[Âˆ]]Üš]HHZ[ÛØP]]Üš]J]Y\İ[Û‹XÚ\Ú[Û‹›X]ÚYÙÛXZ[ŠNÂˆœ™XZÎÂˆB‚ˆ™]\›ˆ™]ÈœÑ]YÜ˜[Jˆ™\]Y\İ’Y[YšY\‹ˆYKˆ™\]Y\İ“ÔÓÑKˆ˜[ÙKˆ˜[ÙKˆ™\]Y\İ”™Xİ\œÚ[Û‘\Ú\™Yˆ˜[ÙKˆ˜[ÙKˆ™\]Y\İÚXÚÚ[™Ñ\ØX›Yˆ˜ÛÙKˆ™\]Y\İ”]Y\İ[Û‹ˆ[œİÙ\‹ˆ]]Üš]Kˆ[ˆ™\]Y\İ‘Q”È\È[È\ÚÜ“Z[•˜[YHˆÙœÔÙ\™\‹•Y^[ØYÚ^™KˆQœÒXY\‘›YÜË“›Û™Kˆ[ˆ
-NÂˆB‚ˆš]˜]HT™XYÛ›S\İœÔ™\Ûİ\˜ÙT™XÛÜ™ˆZ[ÛØP]]Üš]JœÔ]Y\İ[Û”™XÛÜ™]Y\İ[Û‹İš[™ÏÈX]ÚYÛXZ[ŠBˆÂˆİš[™ÈİÛ™\ˆHİš[™Ë’\Ó[Ü•Ú]TÜXÙJX]ÚYÛXZ[ŠHÈ]Y\İ[Û‹“˜[YHˆX]ÚYÛXZ[‹•š[Q[™
-	Ë‰ÊNÂˆ™]\›ˆ™]Ö×BˆÂˆ™]ÈœÔ™\Ûİ\˜ÙT™XÛÜ™
-İÛ™\‹œÔ™\Ûİ\˜ÙT™XÛÜ™\K”ÓĞK]Y\İ[Û‹Û\ÜËØ›ØÚĞ[œİÙ\•ÜÛØT™XÛÜ™JBˆNÂˆB‚ˆš]˜]Hİš[™ÈXZÙRÙ^JœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQT
-BˆÂˆİš[™ĞZ[\ˆØˆH™]Ê
-NÂˆØ‹\[™
-™[[İQTY™\ÜÊK\[™
-	ß	ÊK\[™
-™[[İQT”Ü
-K\[™
-	ß	ÊK\[™
-™\]Y\İ’Y[YšY\ŠNÂˆ›Ü™XXÚ
-œÔ]Y\İ[Û”™XÛÜ™H[ˆ™\]Y\İ”]Y\İ[ÛŠBˆØ‹\[™
-	ß	ÊK\[™
-K“˜[YK•ÓİÙ\’[˜\šX[
+        _dnsServer.WriteLog($"Remote Policy Blocking app initialized. Endpoint={_endpoint}; timeoutMs={_timeoutMs}; failMode={_failMode}; diagnosticLogging={_diagnosticLogging}.");
+        return ProbePolicyServerAsync();
+    }
 
-JK\[™
-	ß	ÊK\[™
-K•\JK\[™
-	ß	ÊK\[™
-KÛ\ÜÊNÂˆ™]\›ˆØ‹•Ôİš[™Ê
-NÂˆB‚ˆš]˜]H›ÚY]XÚ\Ú[ÛŠœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQTXÚ\Ú[Û”™\ÜÛœÙQÈXÚ\Ú[ÛŠBˆÂˆÛX[\^\™Y
+    public async Task<DnsRequestControllerAction> GetRequestActionAsync(
+        DnsDatagram request,
+        IPEndPoint remoteEP,
+        DnsTransportProtocol protocol)
+    {
+        if (_diagnosticLogging)
+        {
+            string q = request.Question.Count > 0
+                ? string.Join(", ", request.Question.Select(x => $"{x.Name}/{x.Type}"))
+                : "<no-question>";
+            _dnsServer?.WriteLog($"Remote Policy Blocking intercepted query from {remoteEP} via {protocol}: {q}");
+        }
 
-NÂˆÙXÚ\Ú[ÛœÖÓXZÙRÙ^J™\]Y\İ™[[İQT
-WHH™]ÈØXÚYXÚ\Ú[ÛŠXÚ\Ú[Û‹]U[YK•]Ó›İËYÙXÛÛ™ÊJJNÂˆB‚ˆš]˜]H›ÛÛQÙ]XÚ\Ú[ÛŠœÑ]YÜ˜[H™\]Y\İT[™Ú[™[[İQT›ÛÛÛÛœİ[YKİ]XÚ\Ú[Û”™\ÜÛœÙQÏÈXÚ\Ú[ÛŠBˆÂˆİš[™ÈÙ^HHXZÙRÙ^J™\]Y\İ™[[İQT
-NÂˆYˆ
-ÙXÚ\Ú[ÛœË•QÙ]˜[YJÙ^Kİ]ØXÚYXÚ\Ú[ÛÈØXÚY
-JBˆÂˆYˆ
-ØXÚY‘^\™\Õ]Èˆ]U[YK•]Ó›İÊBˆÂˆXÚ\Ú[ÛˆHØXÚY‘XÚ\Ú[ÛÂˆYˆ
-ÛÛœİ[YJBˆÙXÚ\Ú[ÛœË•T™[[İ™JÙ^Kİ]ÊNÂˆ™]\›ˆYNÂˆBˆÙXÚ\Ú[ÛœË•T™[[İ™JÙ^Kİ]ÊNÂˆBˆXÚ\Ú[ÛˆH[Âˆ™]\›ˆ˜[ÙNÂˆB‚ˆš]˜]H›ÚYÛX[\^\™Y
+        DecisionResponseDto decision = await QueryPolicyAsync(request, remoteEP, protocol.ToString());
+        PutDecision(request, remoteEP, decision);
 
-BˆÂˆYˆ
-ÙXÚ\Ú[ÛœËÛİ[MŠBˆ™]\›Âˆ]U[YH›İÈH]U[YK•]Ó›İÎÂˆ›Ü™XXÚ
+        // The request controller is used to capture protocol information before the DNS core runs.
+        // Actual DNS blocking is performed by IDnsRequestBlockingHandler so we can synthesize
+        // NXDOMAIN/NODATA/zero-address responses rather than being limited to REFUSED/drop.
+        return DnsRequestControllerAction.Allow;
+    }
 
-İš[™ÈÙ^KØXÚYXÚ\Ú[Ûˆ˜[YJH[ˆÙXÚ\Ú[ÛœÊBˆÂˆYˆ
-˜[YK‘^\™\Õ]ÈH›İÊBˆÙXÚ\Ú[ÛœË•T™[[İ™JÙ^Kİ]ÊNÂˆBˆB‚ˆš]˜]Hİ]XÈİš[™È™XYİš[™ÊœÛÛ‘[[Y[›Ûİİš[™È˜[YKİš[™È˜[˜XÚÊHO‚ˆ›Ûİ•QÙ]›Ü\J˜[YKİ]œÛÛ‘[[Y[JH	‰ˆK•˜[YRÚ[™OHœÛÛ•˜[YRÚ[™”İš[™ÈÈK‘Ù]İš[™Ê
-HÏÈ˜[˜XÚÈˆ˜[˜XÚÎÂ‚ˆš]˜]Hİ]XÈİš[™ÏÈ™XY[X›Tİš[™ÊœÛÛ‘[[Y[›Ûİİš[™È˜[YJHO‚ˆ›Ûİ•QÙ]›Ü\J˜[YKİ]œÛÛ‘[[Y[JH	‰ˆK•˜[YRÚ[™OHœÛÛ•˜[YRÚ[™”İš[™ÈÈK‘Ù]İš[™Ê
-Hˆ[Â‚ˆš]˜]Hİ]XÈ[™XY[
-œÛÛ‘[[Y[›Ûİİš[™È˜[YK[˜[˜XÚÊHO‚ˆ›Ûİ•QÙ]›Ü\J˜[YKİ]œÛÛ‘[[Y[JH	‰ˆK•QÙ][ÌŠİ][˜[YJHÈ˜[YHˆ˜[˜XÚÎÂ‚ˆš]˜]Hİ]XÈ]H™XY]JœÛÛ‘[[Y[›Ûİİš[™È˜[YK]H˜[˜XÚÊHO‚ˆ›Ûİ•QÙ]›Ü\J˜[YKİ]œÛÛ‘[[Y[JH	‰ˆK•QÙ]]Jİ]]H˜[YJHÈ˜[YHˆ˜[˜XÚÎÂ‚ˆš]˜]Hİ]XÈ›ÛÛ™XY›ÛÛ
-œÛÛ‘[[Y[›Ûİİš[™È˜[YK›ÛÛ˜[˜XÚÊHO‚ˆ›Ûİ•QÙ]›Ü\J˜[YKİ]œÛÛ‘[[Y[JH	‰ˆK•˜[YRÚ[™\ÈœÛÛ•˜[YRÚ[™•YHÜˆœÛÛ•˜[YRÚ[™‘˜[ÙHÈK‘Ù]›ÛÛX[Š
-Hˆ˜[˜XÚÎÂŸB
+    public Task<bool> IsAllowedAsync(DnsDatagram request, IPEndPoint remoteEP)
+    {
+        if (!_bypassBuiltInBlockingOnAllow)
+            return Task.FromResult(false);
+
+        if (TryGetDecision(request, remoteEP, consume: false, out DecisionResponseDto? decision) && decision is not null)
+            return Task.FromResult(!decision.block);
+
+        return Task.FromResult(false);
+    }
+
+    public async Task<DnsDatagram?> ProcessRequestAsync(DnsDatagram request, IPEndPoint remoteEP)
+    {
+        // Let Technitium handle malformed/empty-question packets normally.
+        if (request.Question.Count == 0)
+            return null;
+
+        DecisionResponseDto decision;
+        if (!TryGetDecision(request, remoteEP, consume: true, out DecisionResponseDto? cached) || cached is null)
+            decision = await QueryPolicyAsync(request, remoteEP, null);
+        else
+            decision = cached;
+
+        if (!decision.block)
+            return null;
+
+        return BuildBlockedResponse(request, decision);
+    }
+
+    private async Task<DecisionResponseDto> QueryPolicyAsync(DnsDatagram request, IPEndPoint remoteEP, string? protocol)
+    {
+        try
+        {
+            List<QuestionDto> questions = request.Question
+                .Select(q => new QuestionDto(q.Name, q.Type.ToString(), q.Class.ToString()))
+                .ToList();
+
+            using MemoryStream wire = new();
+            request.WriteTo(wire);
+
+            DnsDto dns = new(
+                request.Identifier,
+                request.IsResponse,
+                request.OPCODE.ToString(),
+                request.AuthoritativeAnswer,
+                request.Truncation,
+                request.RecursionDesired,
+                request.RecursionAvailable,
+                request.AuthenticData,
+                request.CheckingDisabled,
+                request.RCODE.ToString(),
+                request.EDNS is not null,
+                request.Question.Count,
+                request.Answer.Count,
+                request.Authority.Count,
+                request.Additional.Count,
+                Convert.ToBase64String(wire.ToArray()),
+                questions
+            );
+
+            DecisionRequestDto payload = new(
+                _serverId,
+                protocol,
+                new ClientDto(remoteEP.Address.ToString(), remoteEP.Port),
+                dns
+            );
+
+            string json = JsonSerializer.Serialize(payload, _jsonOptions);
+            using HttpRequestMessage httpRequest = new(HttpMethod.Post, _endpoint)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+            using HttpResponseMessage response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
+            string body = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                string compactBody = body.Length > 512 ? body[..512] + "..." : body;
+                throw new HttpRequestException($"Policy server returned HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {compactBody}", null, response.StatusCode);
+            }
+
+            DecisionResponseDto? decision = JsonSerializer.Deserialize<DecisionResponseDto>(body, _jsonOptions);
+            if (decision is null)
+                throw new InvalidDataException("Policy server returned an empty decision.");
+
+            if (_diagnosticLogging)
+                _dnsServer?.WriteLog($"Remote Policy Blocking decision for {remoteEP.Address}: block={decision.block}; reason={decision.reason ?? "<none>"}; scope={decision.matched_scope ?? "<none>"}; list={decision.matched_list ?? "<none>"}.");
+            else if (Interlocked.Exchange(ref _loggedSuccess, 1) == 0)
+                _dnsServer?.WriteLog("Remote Policy Blocking successfully received its first decision from the policy server.");
+
+            return decision;
+        }
+        catch (Exception ex)
+        {
+            _dnsServer?.WriteLog("Remote Policy Blocking app policy lookup failed: " + ex.Message);
+            return new DecisionResponseDto
+            {
+                block = _failMode == "closed",
+                reason = _failMode == "closed" ? "policy_unavailable_fail_closed" : "policy_unavailable_fail_open",
+                response_mode = "refused"
+            };
+        }
+    }
+
+
+    private async Task ProbePolicyServerAsync()
+    {
+        if (_dnsServer is null)
+            return;
+
+        try
+        {
+            Uri pingUri = new(_endpoint, "ping");
+            using HttpRequestMessage request = new(HttpMethod.Get, pingUri);
+            using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            string body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe succeeded: {pingUri}");
+                return;
+            }
+
+            string compactBody = body.Length > 512 ? body[..512] + "..." : body;
+            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED: {pingUri} returned HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {compactBody}");
+        }
+        catch (Exception ex)
+        {
+            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED for {_endpoint}. Check endpoint address, Docker networking/firewall, and policy service availability.", ex);
+        }
+    }
+
+    private DnsDatagram BuildBlockedResponse(DnsDatagram request, DecisionResponseDto decision)
+    {
+        if (_dnsServer is null || _soaRecord is null)
+            throw new InvalidOperationException("Application is not initialized.");
+
+        DnsQuestionRecord question = request.Question[0];
+        string mode = (decision.response_mode ?? "nxdomain").ToLowerInvariant();
+        IReadOnlyList<DnsResourceRecord>? answer = null;
+        IReadOnlyList<DnsResourceRecord>? authority = null;
+        DnsResponseCode rcode;
+
+        switch (mode)
+        {
+            case "refused":
+                rcode = DnsResponseCode.Refused;
+                break;
+
+            case "nodata":
+                rcode = DnsResponseCode.NoError;
+                authority = BuildSoaAuthority(question, decision.matched_domain);
+                break;
+
+            case "zero":
+                rcode = DnsResponseCode.NoError;
+                if (question.Type == DnsResourceRecordType.A)
+                {
+                    answer = new[]
+                    {
+                        new DnsResourceRecord(question.Name, DnsResourceRecordType.A, question.Class, _blockAnswerTtl,
+                            new DnsARecordData(IPAddress.Any))
+                    };
+                }
+                else if (question.Type == DnsResourceRecordType.AAAA)
+                {
+                    answer = new[]
+                    {
+                        new DnsResourceRecord(question.Name, DnsResourceRecordType.AAAA, question.Class, _blockAnswerTtl,
+                            new DnsAAAARecordData(IPAddress.IPv6Any))
+                    };
+                }
+                else
+                {
+                    authority = BuildSoaAuthority(question, decision.matched_domain);
+                }
+                break;
+
+            case "nxdomain":
+            default:
+                rcode = DnsResponseCode.NxDomain;
+                authority = BuildSoaAuthority(question, decision.matched_domain);
+                break;
+        }
+
+        return new DnsDatagram(
+            request.Identifier,
+            true,
+            request.OPCODE,
+            false,
+            false,
+            request.RecursionDesired,
+            false,
+            false,
+            request.CheckingDisabled,
+            rcode,
+            request.Question,
+            answer,
+            authority,
+            null,
+            request.EDNS is null ? ushort.MinValue : _dnsServer.UdpPayloadSize,
+            EDnsHeaderFlags.None,
+            null
+        );
+    }
+
+    private IReadOnlyList<DnsResourceRecord> BuildSoaAuthority(DnsQuestionRecord question, string? matchedDomain)
+    {
+        string owner = string.IsNullOrWhiteSpace(matchedDomain) ? question.Name : matchedDomain.TrimEnd('.');
+        return new[]
+        {
+            new DnsResourceRecord(owner, DnsResourceRecordType.SOA, question.Class, _blockAnswerTtl, _soaRecord!)
+        };
+    }
+
+    private string MakeKey(DnsDatagram request, IPEndPoint remoteEP)
+    {
+        StringBuilder sb = new();
+        sb.Append(remoteEP.Address).Append('|').Append(remoteEP.Port).Append('|').Append(request.Identifier);
+        foreach (DnsQuestionRecord q in request.Question)
+            sb.Append('|').Append(q.Name.ToLowerInvariant()).Append('|').Append(q.Type).Append('|').Append(q.Class);
+        return sb.ToString();
+    }
+
+    private void PutDecision(DnsDatagram request, IPEndPoint remoteEP, DecisionResponseDto decision)
+    {
+        CleanupExpired();
+        _decisions[MakeKey(request, remoteEP)] = new CachedDecision(decision, DateTime.UtcNow.AddSeconds(5));
+    }
+
+    private bool TryGetDecision(DnsDatagram request, IPEndPoint remoteEP, bool consume, out DecisionResponseDto? decision)
+    {
+        string key = MakeKey(request, remoteEP);
+        if (_decisions.TryGetValue(key, out CachedDecision? cached))
+        {
+            if (cached.ExpiresUtc > DateTime.UtcNow)
+            {
+                decision = cached.Decision;
+                if (consume)
+                    _decisions.TryRemove(key, out _);
+                return true;
+            }
+            _decisions.TryRemove(key, out _);
+        }
+        decision = null;
+        return false;
+    }
+
+    private void CleanupExpired()
+    {
+        if (_decisions.Count < 4096)
+            return;
+        DateTime now = DateTime.UtcNow;
+        foreach ((string key, CachedDecision value) in _decisions)
+        {
+            if (value.ExpiresUtc <= now)
+                _decisions.TryRemove(key, out _);
+        }
+    }
+
+    private static string ReadString(JsonElement root, string name, string fallback) =>
+        root.TryGetProperty(name, out JsonElement e) && e.ValueKind == JsonValueKind.String ? e.GetString() ?? fallback : fallback;
+
+    private static string? ReadNullableString(JsonElement root, string name) =>
+        root.TryGetProperty(name, out JsonElement e) && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
+
+    private static int ReadInt(JsonElement root, string name, int fallback) =>
+        root.TryGetProperty(name, out JsonElement e) && e.TryGetInt32(out int value) ? value : fallback;
+
+    private static byte ReadByte(JsonElement root, string name, byte fallback) =>
+        root.TryGetProperty(name, out JsonElement e) && e.TryGetByte(out byte value) ? value : fallback;
+
+    private static bool ReadBool(JsonElement root, string name, bool fallback) =>
+        root.TryGetProperty(name, out JsonElement e) && e.ValueKind is JsonValueKind.True or JsonValueKind.False ? e.GetBoolean() : fallback;
+}
