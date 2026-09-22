@@ -8,7 +8,7 @@ The repository is intentionally flat: source, project file, configuration, and b
 
 - Technitium DNS Server 15.x
 - .NET 10 SDK for building
-- A running Blockinator policy server
+- A running Blockinator policy server (HTTP or HTTPS)
 
 The project builds directly against the Technitium assemblies from the DNS Server installation so the plugin matches the version you run.
 
@@ -91,6 +91,8 @@ The included `dnsApp.config` is the template:
 {
   "appPreference": 25,
   "endpoint": "http://127.0.0.1:8080/api/v1/decision",
+  "tlsVerifyServerCertificate": true,
+  "tlsCaCertificatePath": "",
   "apiKey": "change-this-long-random-api-key",
   "serverId": "technitium-1",
   "timeoutMs": 250,
@@ -102,7 +104,9 @@ The included `dnsApp.config` is the template:
 ```
 
 - **appPreference** — Technitium app ordering preference.
-- **endpoint** — full Blockinator `/api/v1/decision` URL.
+- **endpoint** — full Blockinator `/api/v1/decision` URL. Both `http://` and `https://` are supported.
+- **tlsVerifyServerCertificate** — verifies the HTTPS server certificate and hostname. Defaults to `true`. Set to `false` only for controlled testing.
+- **tlsCaCertificatePath** — optional path to a PEM or DER root CA certificate trusted specifically for the Blockinator HTTPS endpoint. Useful with private/internal ACME CAs.
 - **apiKey** — enabled Blockinator API key, sent as `X-Api-Key`.
 - **serverId** — label stored with requests when multiple DNS servers use one Blockinator instance.
 - **timeoutMs** — HTTP policy timeout. Default is 250 ms.
@@ -110,6 +114,30 @@ The included `dnsApp.config` is the template:
 - **blockAnswerTtl** — TTL for synthetic blocked answers.
 - **bypassBuiltInBlockingOnAllow** — allows a Blockinator ALLOW decision to bypass Technitium's own built-in blocking lists.
 - **diagnosticLogging** — logs intercepted requests and remote decisions for troubleshooting.
+
+## HTTPS / TLS
+
+For a public CA such as Let's Encrypt, only change the endpoint to HTTPS:
+
+```json
+"endpoint": "https://blockinator.example.com/api/v1/decision"
+```
+
+The plugin uses the operating system trust store by default and continues to validate the certificate hostname.
+
+For a private/internal CA, make the CA root certificate available to the Technitium process and configure it explicitly:
+
+```json
+{
+  "endpoint": "https://blockinator.internal:8443/api/v1/decision",
+  "tlsVerifyServerCertificate": true,
+  "tlsCaCertificatePath": "/etc/technitium/blockinator-ca.pem"
+}
+```
+
+The custom CA augments HTTPS validation for this policy client without requiring the CA to be installed into the host-wide trust store. Hostname validation remains required.
+
+For temporary lab troubleshooting only, certificate validation can be disabled with `"tlsVerifyServerCertificate": false`. The plugin writes a warning to the Technitium log whenever this is active.
 
 ## Diagnostics
 
@@ -126,11 +154,11 @@ Useful results include:
 You can test Blockinator from the Technitium host with:
 
 ```bash
-curl -i -H 'X-Api-Key: YOUR_KEY' http://BLOCKINATOR:8080/api/v1/ping
+curl -i -H 'X-Api-Key: YOUR_KEY' https://BLOCKINATOR:8443/api/v1/ping
 ```
 
 ## Version
 
-Current plugin project version: **1.2.0**.
+Current plugin project version: **1.3.0**.
 
 The plugin source was recovered from the working Blockinator v1.3 bundle. Plugin logic was unchanged in that bundle; v1.2 is the packaging/app-discovery-fixed release.

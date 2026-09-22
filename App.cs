@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using TechnitiumLibrary.Net.Dns;
@@ -53,8 +55,11 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
     private IDnsServer? _dnsServer;
     private HttpClient _httpClient = new();
+    private X509Certificate2? _tlsCustomCa;
     private Uri _endpoint = new("http://127.0.0.1:8080/api/v1/decision");
     private string _apiKey = "";
+    private bool _tlsVerifyServerCertificate = true;
+    private string? _tlsCaCertificatePath;
     private string? _serverId;
     private int _timeoutMs = 250;
     private string _failMode = "open";
@@ -65,12 +70,13 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
     private byte _preference = 25;
     private DnsSOARecordData? _soaRecord;
 
-    public string Description => "Uses a remote HTTP policy service to make per-client DNS blocking decisions.";
+    public string Description => "Uses a remote HTTP/HTTPS policy service to make per-client DNS blocking decisions.";
     public byte Preference => _preference;
 
     public void Dispose()
     {
         _httpClient.Dispose();
+        _tlsCustomCa?.Dispose();
         _decisions.Clear();
     }
 
@@ -85,7 +91,17 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
         _preference = ReadByte(root, "appPreference", 25);
         _endpoint = new Uri(ReadString(root, "endpoint", "http://127.0.0.1:8080/api/v1/decision"));
+        if (_endpoint.Scheme != Uri.UriSchemeHttp && _endpoint.Scheme != Uri.UriSchemeHttps)
+            throw new FormatException("endpoint must use http:// or https://.");
+
         _apiKey = ReadString(root, "apiKey", "");
+        _tlsVerifyServerCertificate = ReadBool(root, "tlsVerifyServerCertificate", true);
+        _tlsCaCertificatePath = ReadNullableString(root, "tlsCaCertificatePath");
+        if (string.IsNullOrWhiteSpace(_tlsCaCertificatePath))
+            _tlsCaCertificatePath = null;
+        else
+            _tlsCaCertificatePath = _tlsCaCertificatePath.Trim();
+
         _serverId = ReadNullableString(root, "serverId");
         _timeoutMs = Math.Clamp(ReadInt(root, "timeoutMs", 250), 25, 10000);
         _failMode = ReadString(root, "failMode", "open").ToLowerInvariant();
@@ -97,7 +113,27 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         _loggedSuccess = 0;
 
         _httpClient.Dispose();
-        _httpClient = new HttpClient
+        _tlsCustomCa?.Dispose();
+        _tlsCustomCa = null;
+
+        if (_endpoint.Scheme == Uri.UriSchemeHttps && _tlsCaCertificatePath is not null)
+        {
+            if (!File.Exists(_tlsCaCertificatePath))
+                throw new FileNotFoundException("The configured TLS CA certificate file was not found.", _tlsCaCertificatePath);
+
+            _tlsCustomCa = X509CertificateLoader.LoadCertificateFromFile(_tlsCaCertificatePath);
+        }
+
+        HttpClientHandler httpHandler = new();
+        if (_endpoint.Scheme == Uri.UriSchemeHttps)
+        {
+            if (!_tlsVerifyServerCertificate)
+                httpHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            else if (_tlsCustomCa is not null)
+                httpHandler.ServerCertificateCustomValidationCallback = ValidateServerCertificate;
+        }
+
+        _httpClient = new HttpClient(httpHandler)
         {
             Timeout = TimeSpan.FromMilliseconds(_timeoutMs)
         };
@@ -117,7 +153,10 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
         _decisions.Clear();
 
-        _dnsServer.WriteLog($"Remote Policy Blocking app initialized. Endpoint={_endpoint}; timeoutMs={_timeoutMs}; failMode={_failMode}; diagnosticLogging={_diagnosticLogging}.");
+        if (_endpoint.Scheme == Uri.UriSchemeHttps && !_tlsVerifyServerCertificate)
+            _dnsServer.WriteLog("WARNING: Remote Policy Blocking TLS server-certificate verification is DISABLED. This should only be used for controlled testing.");
+
+        _dnsServer.WriteLog($"Remote Policy Blocking app initialized. Endpoint={_endpoint}; timeoutMs={_timeoutMs}; failMode={_failMode}; diagnosticLogging={_diagnosticLogging}; tlsVerifyServerCertificate={_tlsVerifyServerCertificate}; customTlsCa={_tlsCustomCa is not null}.");
         return ProbePolicyServerAsync();
     }
 
@@ -170,6 +209,39 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
             return null;
 
         return BuildBlockedResponse(request, decision);
+    }
+
+    private bool ValidateServerCertificate(
+        HttpRequestMessage _,
+        X509Certificate2? certificate,
+        X509Chain? chain,
+        SslPolicyErrors sslPolicyErrors)
+    {
+        if (sslPolicyErrors == SslPolicyErrors.None)
+            return true;
+
+        if (certificate is null || _tlsCustomCa is null)
+            return false;
+
+        if ((sslPolicyErrors & (SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable)) != 0)
+            return false;
+
+        using X509Chain customChain = new();
+        customChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+        customChain.ChainPolicy.CustomTrustStore.Add(_tlsCustomCa);
+        customChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        customChain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+
+        if (chain is not null)
+        {
+            foreach (X509ChainElement element in chain.ChainElements.Skip(1))
+            {
+                if (!string.Equals(element.Certificate.Thumbprint, _tlsCustomCa.Thumbprint, StringComparison.OrdinalIgnoreCase))
+                    customChain.ChainPolicy.ExtraStore.Add(element.Certificate);
+            }
+        }
+
+        return customChain.Build(certificate);
     }
 
     private async Task<DecisionResponseDto> QueryPolicyAsync(DnsDatagram request, IPEndPoint remoteEP, string? protocol)
@@ -270,7 +342,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         }
         catch (Exception ex)
         {
-            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED for {_endpoint}. Check endpoint address, Docker networking/firewall, and policy service availability.", ex);
+            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED for {_endpoint}. Check endpoint address, Docker networking/firewall, TLS certificate trust/custom CA settings, and policy service availability.", ex);
         }
     }
 
