@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Added HTTPS policy-server endpoint support with normal operating-system certificate trust.
+- Added optional custom root CA trust for private/internal PKI and ACME deployments.
+- Preserved TLS hostname validation when a custom CA is configured.
+- Added an explicit opt-in certificate-verification bypass for controlled troubleshooting, with a startup warning.
+- Reject non-HTTP(S) policy endpoint schemes during initialization.
+- Expanded startup probe diagnostics for TLS trust failures.
+
 ## 1.2.0
 
 - Fixed Technitium app discovery packaging by building with `dotnet publish`.
