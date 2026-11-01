@@ -113,4 +113,3 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           PACKAGE_NAME: ${{ needs.build.outputs.package-name }}
         run: gh release upload "$RELEASE_TAG" "dist/$PACKAGE_NAME" --clobber
-
