@@ -116,7 +116,7 @@ The cache key includes:
 - DNS message identifier; and
 - each question's name, type, and class.
 
-Cached entries expire after approximately **5 seconds** and are consumed by the blocking-handler stage.
+Cached entries expire after approximately **5 seconds** and are consumed by the blocking-handler stage (or immediately, when an explicit ALLOW bypasses built-in blocking and Technitium skips that stage). Expired entries left behind by requests that never reach the blocking stage are swept periodically.
 
 This is **not a DNS or policy cache**. Decisions are not reused across unrelated DNS requests.
 
@@ -183,13 +183,15 @@ The included `dnsApp.config` is the default configuration template:
 | `tlsCaCertificatePath` | Optional PEM or DER root CA trusted specifically for the Blockinator endpoint. | blank |
 | `apiKey` | Enabled Blockinator API key sent in the `X-Api-Key` header. | change-me value |
 | `serverId` | Optional identifier recorded by Blockinator to distinguish multiple DNS servers. | `technitium-1` |
-| `timeoutMs` | HTTP policy lookup timeout in milliseconds. Values are clamped to 25–10000 ms. | `250` |
+| `timeoutMs` | Total policy lookup deadline in milliseconds, covering connection, TLS, headers and response body. Values are clamped to 25–10000 ms. | `250` |
 | `failMode` | Behavior when Blockinator cannot return a usable decision: `open` or `closed`. | `open` |
 | `blockAnswerTtl` | TTL for synthetic block answers/SOA records. Values are clamped to 0–86400 seconds. | `30` |
 | `bypassBuiltInBlockingOnAllow` | Let an explicit Blockinator ALLOW bypass Technitium's built-in blocking. | `true` |
 | `diagnosticLogging` | Log intercepted requests and returned decisions. | `false` |
 
-Only `http://` and `https://` endpoint schemes are accepted.
+Only `http://` and `https://` endpoint schemes are accepted, and the endpoint must not contain `user:password@` credentials (use `apiKey`).
+
+Numeric settings must be JSON numbers; a value such as `"250"` (a string) is ignored and the default is used.
 
 ## Endpoint examples
 
@@ -223,7 +225,9 @@ The plugin sends the configured API key as:
 X-Api-Key: <apiKey>
 ```
 
-The key must correspond to an enabled API key in Blockinator.
+The key must correspond to an enabled API key in Blockinator. The plugin logs a warning at startup if `apiKey` is empty or still set to the example value.
+
+To keep the key from reaching any other host, the plugin never follows HTTP redirects and ignores ambient `HTTP_PROXY`/`HTTPS_PROXY` settings. If Blockinator redirects HTTP to HTTPS, configure the final HTTPS URL directly.
 
 Using a named `serverId` is strongly recommended when multiple Technitium servers send requests to the same Blockinator instance because Blockinator records the originating server in its Dashboard and Query Log.
 
@@ -294,8 +298,11 @@ Policy lookups can fail because of:
 - invalid TLS trust;
 - hostname mismatch;
 - HTTP authentication failure;
-- non-success HTTP response; or
-- an invalid/empty decision response.
+- non-success HTTP response, including redirects;
+- a response larger than 16 KiB; or
+- an invalid/empty decision response, including one without a boolean `block` field.
+
+Lookup failures are logged at most once per minute, with a count of the failures suppressed in between, so an outage does not flood the Technitium log.
 
 The `failMode` setting controls what happens next.
 
@@ -313,7 +320,7 @@ The internal decision reason becomes:
 policy_unavailable_fail_open
 ```
 
-This prioritizes DNS availability if Blockinator is offline.
+This prioritizes DNS availability if Blockinator is offline. A fail-open fallback is **not** treated as an explicit ALLOW: Technitium's built-in blocking still applies during the outage, even with `bypassBuiltInBlockingOnAllow` enabled.
 
 ### Fail closed
 
@@ -351,7 +358,7 @@ When Blockinator explicitly allows the request, the plugin reports it as allowed
 
 An ALLOW from Blockinator does not bypass Technitium's built-in blocking. Technitium may still block the request according to its own lists or configuration.
 
-This setting does not change Blockinator BLOCK decisions.
+This setting does not change Blockinator BLOCK decisions, and it never applies to fail-open fallback decisions made while Blockinator is unavailable.
 
 ## Block response modes
 
@@ -369,6 +376,8 @@ Returns:
 - an SOA authority record using `blockAnswerTtl`
 
 This is also the fallback if Blockinator returns an unknown or missing response mode.
+
+The SOA record's owner is Blockinator's `matched_domain` when that is the queried name or one of its parent domains; otherwise (for example, wildcard or regular-expression rules) the queried name is used.
 
 ### REFUSED
 
@@ -617,7 +626,7 @@ if Blockinator is intended to be authoritative for allow decisions.
 
 ## Version
 
-Current plugin version: **1.3.0**
+Current plugin version: **1.4.0**
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
