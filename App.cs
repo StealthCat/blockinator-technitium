@@ -7,6 +7,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TechnitiumLibrary.Net.Dns;
 using TechnitiumLibrary.Net.Dns.ResourceRecords;
 
@@ -38,14 +39,30 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
     private sealed record DecisionRequestDto(string? server_id, string? protocol, ClientDto client, DnsDto dns);
     private sealed class DecisionResponseDto
     {
-        public bool block { get; set; }
+        // Nullable so that a reply without an explicit decision is rejected instead of
+        // silently deserializing as "allow".
+        public bool? block { get; set; }
         public string? reason { get; set; }
         public string? matched_scope { get; set; }
         public string? matched_list { get; set; }
         public string? matched_domain { get; set; }
         public string? response_mode { get; set; }
+
+        // Set for synthesized fail-open/fail-closed decisions; never read from JSON.
+        [JsonIgnore]
+        public bool PolicyUnavailable { get; init; }
+
+        [JsonIgnore]
+        public bool IsBlocked => block == true;
     }
     private sealed record CachedDecision(DecisionResponseDto Decision, DateTime ExpiresUtc);
+
+    private const int MaxDecisionResponseBytes = 16384;
+    private const int MaxLoggedBodyChars = 512;
+    private static readonly TimeSpan DecisionHandoffLifetime = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan CleanupInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan FailureLogInterval = TimeSpan.FromSeconds(60);
+    private const string PlaceholderApiKey = "change-this-long-random-api-key";
 
     private readonly ConcurrentDictionary<string, CachedDecision> _decisions = new();
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
@@ -67,6 +84,9 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
     private bool _bypassBuiltInBlockingOnAllow = true;
     private bool _diagnosticLogging = false;
     private int _loggedSuccess;
+    private long _lastCleanupTicks;
+    private long _lastFailureLogTicks;
+    private long _suppressedFailures;
     private byte _preference = 25;
     private DnsSOARecordData? _soaRecord;
 
@@ -80,6 +100,9 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         _decisions.Clear();
     }
 
+    private static string Truncate(string text) =>
+        text.Length > MaxLoggedBodyChars ? text[..MaxLoggedBodyChars] + "..." : text;
+
     public Task InitializeAsync(IDnsServer dnsServer, string? config)
     {
         _dnsServer = dnsServer;
@@ -90,11 +113,15 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         JsonElement root = doc.RootElement;
 
         _preference = ReadByte(root, "appPreference", 25);
-        _endpoint = new Uri(ReadString(root, "endpoint", "http://127.0.0.1:8080/api/v1/decision"));
-        if (_endpoint.Scheme != Uri.UriSchemeHttp && _endpoint.Scheme != Uri.UriSchemeHttps)
+        Uri endpoint = new(ReadString(root, "endpoint", "http://127.0.0.1:8080/api/v1/decision"), UriKind.Absolute);
+        if (endpoint.Scheme != Uri.UriSchemeHttp && endpoint.Scheme != Uri.UriSchemeHttps)
             throw new FormatException("endpoint must use http:// or https://.");
+        // Credentials embedded in the URL would be written to the Technitium log below.
+        if (!string.IsNullOrEmpty(endpoint.UserInfo))
+            throw new FormatException("endpoint must not contain credentials; use apiKey instead.");
+        _endpoint = endpoint;
 
-        _apiKey = ReadString(root, "apiKey", "");
+        _apiKey = ReadString(root, "apiKey", "").Trim();
         _tlsVerifyServerCertificate = ReadBool(root, "tlsVerifyServerCertificate", true);
         _tlsCaCertificatePath = ReadNullableString(root, "tlsCaCertificatePath");
         if (string.IsNullOrWhiteSpace(_tlsCaCertificatePath))
@@ -111,35 +138,54 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         _bypassBuiltInBlockingOnAllow = ReadBool(root, "bypassBuiltInBlockingOnAllow", true);
         _diagnosticLogging = ReadBool(root, "diagnosticLogging", false);
         _loggedSuccess = 0;
+        Interlocked.Exchange(ref _lastFailureLogTicks, 0);
+        Interlocked.Exchange(ref _suppressedFailures, 0);
 
-        _httpClient.Dispose();
-        _tlsCustomCa?.Dispose();
-        _tlsCustomCa = null;
-
+        X509Certificate2? customCa = null;
         if (_endpoint.Scheme == Uri.UriSchemeHttps && _tlsCaCertificatePath is not null)
         {
             if (!File.Exists(_tlsCaCertificatePath))
                 throw new FileNotFoundException("The configured TLS CA certificate file was not found.", _tlsCaCertificatePath);
 
-            _tlsCustomCa = X509CertificateLoader.LoadCertificateFromFile(_tlsCaCertificatePath);
+            customCa = X509CertificateLoader.LoadCertificateFromFile(_tlsCaCertificatePath);
         }
 
-        HttpClientHandler httpHandler = new();
+        HttpClientHandler httpHandler = new()
+        {
+            // Never follow redirects: the X-Api-Key header would be forwarded to the new location.
+            AllowAutoRedirect = false,
+            // Ignore ambient HTTP(S)_PROXY settings so the key only goes to the configured endpoint.
+            UseProxy = false
+        };
         if (_endpoint.Scheme == Uri.UriSchemeHttps)
         {
             if (!_tlsVerifyServerCertificate)
                 httpHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            else if (_tlsCustomCa is not null)
-                httpHandler.ServerCertificateCustomValidationCallback = ValidateServerCertificate;
+            else if (customCa is not null)
+                httpHandler.ServerCertificateCustomValidationCallback = (_, certificate, chain, errors) =>
+                    ValidateServerCertificate(customCa, certificate, chain, errors);
         }
 
-        _httpClient = new HttpClient(httpHandler)
+        HttpClient httpClient = new(httpHandler)
         {
-            Timeout = TimeSpan.FromMilliseconds(_timeoutMs)
+            // Per-request deadlines (including the response body) are enforced with a
+            // CancellationToken in SendPolicyRequestAsync; this is only a backstop.
+            Timeout = TimeSpan.FromMilliseconds(_timeoutMs * 2)
         };
-        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         if (!string.IsNullOrEmpty(_apiKey))
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Api-Key", _apiKey);
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Api-Key", _apiKey);
+
+        // Swap in the new client first so queries in flight during a configuration reload
+        // finish on the old client instead of failing with ObjectDisposedException.
+        HttpClient oldClient = Interlocked.Exchange(ref _httpClient, httpClient);
+        X509Certificate2? oldCa = Interlocked.Exchange(ref _tlsCustomCa, customCa);
+        // 30 s exceeds the longest possible request lifetime (2 x the 10 s maximum timeout).
+        _ = Task.Delay(TimeSpan.FromSeconds(30)).ContinueWith(_ =>
+        {
+            oldClient.Dispose();
+            oldCa?.Dispose();
+        }, TaskScheduler.Default);
 
         _soaRecord = new DnsSOARecordData(
             dnsServer.ServerDomain,
@@ -155,6 +201,8 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
         if (_endpoint.Scheme == Uri.UriSchemeHttps && !_tlsVerifyServerCertificate)
             _dnsServer.WriteLog("WARNING: Remote Policy Blocking TLS server-certificate verification is DISABLED. This should only be used for controlled testing.");
+        if (_apiKey.Length == 0 || _apiKey == PlaceholderApiKey)
+            _dnsServer.WriteLog("WARNING: Remote Policy Blocking apiKey is empty or still set to the example value; Blockinator will reject policy requests until a valid key is configured.");
 
         _dnsServer.WriteLog($"Remote Policy Blocking app initialized. Endpoint={_endpoint}; timeoutMs={_timeoutMs}; failMode={_failMode}; diagnosticLogging={_diagnosticLogging}; tlsVerifyServerCertificate={_tlsVerifyServerCertificate}; customTlsCa={_tlsCustomCa is not null}.");
         return ProbePolicyServerAsync();
@@ -165,11 +213,14 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         IPEndPoint remoteEP,
         DnsTransportProtocol protocol)
     {
+        // Malformed/empty-question packets are handled by Technitium itself and never reach
+        // the blocking stage, so there is nothing for the policy server to decide.
+        if (request.Question.Count == 0)
+            return DnsRequestControllerAction.Allow;
+
         if (_diagnosticLogging)
         {
-            string q = request.Question.Count > 0
-                ? string.Join(", ", request.Question.Select(x => $"{x.Name}/{x.Type}"))
-                : "<no-question>";
+            string q = string.Join(", ", request.Question.Select(x => $"{x.Name}/{x.Type}"));
             _dnsServer?.WriteLog($"Remote Policy Blocking intercepted query from {remoteEP} via {protocol}: {q}");
         }
 
@@ -187,10 +238,17 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         if (!_bypassBuiltInBlockingOnAllow)
             return Task.FromResult(false);
 
-        if (TryGetDecision(request, remoteEP, consume: false, out DecisionResponseDto? decision) && decision is not null)
-            return Task.FromResult(!decision.block);
+        if (!TryGetDecision(request, remoteEP, consume: false, out DecisionResponseDto? decision) || decision is null)
+            return Task.FromResult(false);
 
-        return Task.FromResult(false);
+        // Only an explicit ALLOW from Blockinator may bypass built-in blocking. A fail-open
+        // fallback must not disable Technitium's own block lists during a policy outage.
+        if (decision.IsBlocked || decision.PolicyUnavailable)
+            return Task.FromResult(false);
+
+        // Technitium skips the blocking stage for allowed requests, so release the handoff now.
+        TryGetDecision(request, remoteEP, consume: true, out _);
+        return Task.FromResult(true);
     }
 
     public async Task<DnsDatagram?> ProcessRequestAsync(DnsDatagram request, IPEndPoint remoteEP)
@@ -205,14 +263,14 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         else
             decision = cached;
 
-        if (!decision.block)
+        if (!decision.IsBlocked)
             return null;
 
         return BuildBlockedResponse(request, decision);
     }
 
-    private bool ValidateServerCertificate(
-        HttpRequestMessage _,
+    private static bool ValidateServerCertificate(
+        X509Certificate2 customCa,
         X509Certificate2? certificate,
         X509Chain? chain,
         SslPolicyErrors sslPolicyErrors)
@@ -220,7 +278,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         if (sslPolicyErrors == SslPolicyErrors.None)
             return true;
 
-        if (certificate is null || _tlsCustomCa is null)
+        if (certificate is null)
             return false;
 
         if ((sslPolicyErrors & (SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable)) != 0)
@@ -228,7 +286,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
         using X509Chain customChain = new();
         customChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-        customChain.ChainPolicy.CustomTrustStore.Add(_tlsCustomCa);
+        customChain.ChainPolicy.CustomTrustStore.Add(customCa);
         customChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
         customChain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
 
@@ -236,7 +294,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         {
             foreach (X509ChainElement element in chain.ChainElements.Skip(1))
             {
-                if (!string.Equals(element.Certificate.Thumbprint, _tlsCustomCa.Thumbprint, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(element.Certificate.Thumbprint, customCa.Thumbprint, StringComparison.OrdinalIgnoreCase))
                     customChain.ChainPolicy.ExtraStore.Add(element.Certificate);
             }
         }
@@ -287,20 +345,18 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
-            using HttpResponseMessage response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
-            string body = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode)
-            {
-                string compactBody = body.Length > 512 ? body[..512] + "..." : body;
-                throw new HttpRequestException($"Policy server returned HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {compactBody}", null, response.StatusCode);
-            }
+            (HttpStatusCode status, string? reasonPhrase, string body) = await SendPolicyRequestAsync(httpRequest);
+            if ((int)status < 200 || (int)status > 299)
+                throw new HttpRequestException($"Policy server returned HTTP {(int)status} {reasonPhrase}: {Truncate(body)}", null, status);
 
             DecisionResponseDto? decision = JsonSerializer.Deserialize<DecisionResponseDto>(body, _jsonOptions);
             if (decision is null)
                 throw new InvalidDataException("Policy server returned an empty decision.");
+            if (decision.block is null)
+                throw new InvalidDataException("Policy server decision is missing the boolean 'block' field.");
 
             if (_diagnosticLogging)
-                _dnsServer?.WriteLog($"Remote Policy Blocking decision for {remoteEP.Address}: block={decision.block}; reason={decision.reason ?? "<none>"}; scope={decision.matched_scope ?? "<none>"}; list={decision.matched_list ?? "<none>"}.");
+                _dnsServer?.WriteLog($"Remote Policy Blocking decision for {remoteEP.Address}: block={decision.IsBlocked}; reason={decision.reason ?? "<none>"}; scope={decision.matched_scope ?? "<none>"}; list={decision.matched_list ?? "<none>"}.");
             else if (Interlocked.Exchange(ref _loggedSuccess, 1) == 0)
                 _dnsServer?.WriteLog("Remote Policy Blocking successfully received its first decision from the policy server.");
 
@@ -308,14 +364,67 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         }
         catch (Exception ex)
         {
-            _dnsServer?.WriteLog("Remote Policy Blocking app policy lookup failed: " + ex.Message);
+            LogPolicyFailure(ex);
             return new DecisionResponseDto
             {
                 block = _failMode == "closed",
                 reason = _failMode == "closed" ? "policy_unavailable_fail_closed" : "policy_unavailable_fail_open",
-                response_mode = "refused"
+                response_mode = "refused",
+                PolicyUnavailable = true
             };
         }
+    }
+
+    /// <summary>
+    /// Sends a policy request with a single deadline covering connection, headers and the
+    /// response body, and reads at most <see cref="MaxDecisionResponseBytes"/> of the body.
+    /// </summary>
+    private async Task<(HttpStatusCode Status, string? ReasonPhrase, string Body)> SendPolicyRequestAsync(HttpRequestMessage request)
+    {
+        using CancellationTokenSource timeout = new(TimeSpan.FromMilliseconds(_timeoutMs));
+        try
+        {
+            using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+            if (response.Content.Headers.ContentLength > MaxDecisionResponseBytes && response.IsSuccessStatusCode)
+                throw new InvalidDataException($"Policy server response exceeds {MaxDecisionResponseBytes} bytes.");
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(timeout.Token);
+            byte[] buffer = new byte[MaxDecisionResponseBytes + 1];
+            int length = 0;
+            int read;
+            while (length < buffer.Length && (read = await stream.ReadAsync(buffer.AsMemory(length), timeout.Token)) > 0)
+                length += read;
+
+            if (length > MaxDecisionResponseBytes && response.IsSuccessStatusCode)
+                throw new InvalidDataException($"Policy server response exceeds {MaxDecisionResponseBytes} bytes.");
+
+            string body = Encoding.UTF8.GetString(buffer, 0, Math.Min(length, MaxDecisionResponseBytes));
+            return (response.StatusCode, response.ReasonPhrase, body);
+        }
+        catch (OperationCanceledException) when (timeout.IsCancellationRequested)
+        {
+            throw new TimeoutException($"Policy server did not respond within {_timeoutMs} ms.");
+        }
+    }
+
+    /// <summary>
+    /// Logs policy lookup failures at most once per minute so an outage does not flood the
+    /// Technitium log on a busy resolver.
+    /// </summary>
+    private void LogPolicyFailure(Exception ex)
+    {
+        long now = DateTime.UtcNow.Ticks;
+        long last = Interlocked.Read(ref _lastFailureLogTicks);
+        if ((last != 0 && now - last < FailureLogInterval.Ticks) ||
+            Interlocked.CompareExchange(ref _lastFailureLogTicks, now, last) != last)
+        {
+            Interlocked.Increment(ref _suppressedFailures);
+            return;
+        }
+
+        long suppressed = Interlocked.Exchange(ref _suppressedFailures, 0);
+        string suffix = suppressed > 0 ? $" ({suppressed} similar failures suppressed in the last minute)" : "";
+        _dnsServer?.WriteLog($"Remote Policy Blocking app policy lookup failed; applying failMode={_failMode}: {ex.Message}{suffix}");
     }
 
 
@@ -328,17 +437,15 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
         {
             Uri pingUri = new(_endpoint, "ping");
             using HttpRequestMessage request = new(HttpMethod.Get, pingUri);
-            using HttpResponseMessage response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-            string body = await response.Content.ReadAsStringAsync();
+            (HttpStatusCode status, string? reasonPhrase, string body) = await SendPolicyRequestAsync(request);
 
-            if (response.IsSuccessStatusCode)
+            if ((int)status >= 200 && (int)status <= 299)
             {
                 _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe succeeded: {pingUri}");
                 return;
             }
 
-            string compactBody = body.Length > 512 ? body[..512] + "..." : body;
-            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED: {pingUri} returned HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {compactBody}");
+            _dnsServer.WriteLog($"Remote Policy Blocking connectivity probe FAILED: {pingUri} returned HTTP {(int)status} {reasonPhrase}: {Truncate(body)}");
         }
         catch (Exception ex)
         {
@@ -406,7 +513,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
             false,
             false,
             request.RecursionDesired,
-            false,
+            true, // the blocking stage only runs for clients that are allowed recursion
             false,
             request.CheckingDisabled,
             rcode,
@@ -422,11 +529,33 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
     private IReadOnlyList<DnsResourceRecord> BuildSoaAuthority(DnsQuestionRecord question, string? matchedDomain)
     {
-        string owner = string.IsNullOrWhiteSpace(matchedDomain) ? question.Name : matchedDomain.TrimEnd('.');
         return new[]
         {
-            new DnsResourceRecord(owner, DnsResourceRecordType.SOA, question.Class, _blockAnswerTtl, _soaRecord!)
+            new DnsResourceRecord(SoaOwner(question.Name, matchedDomain), DnsResourceRecordType.SOA, question.Class, _blockAnswerTtl, _soaRecord!)
         };
+    }
+
+    /// <summary>
+    /// Uses Blockinator's matched domain as the SOA owner only when it is the queried name or
+    /// one of its parent domains. Anything else (wildcards, regex rules, other domains) would
+    /// either be rejected by DnsResourceRecord, turning the block into a silent allow, or
+    /// produce an out-of-bailiwick authority record.
+    /// </summary>
+    private static string SoaOwner(string questionName, string? matchedDomain)
+    {
+        if (string.IsNullOrWhiteSpace(matchedDomain))
+            return questionName;
+
+        string candidate = matchedDomain.Trim().TrimEnd('.');
+        string name = questionName.TrimEnd('.');
+        if (candidate.Length == 0 || !DnsClient.IsDomainNameValid(candidate))
+            return questionName;
+
+        if (name.Equals(candidate, StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("." + candidate, StringComparison.OrdinalIgnoreCase))
+            return candidate;
+
+        return questionName;
     }
 
     private string MakeKey(DnsDatagram request, IPEndPoint remoteEP)
@@ -441,7 +570,7 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
     private void PutDecision(DnsDatagram request, IPEndPoint remoteEP, DecisionResponseDto decision)
     {
         CleanupExpired();
-        _decisions[MakeKey(request, remoteEP)] = new CachedDecision(decision, DateTime.UtcNow.AddSeconds(5));
+        _decisions[MakeKey(request, remoteEP)] = new CachedDecision(decision, DateTime.UtcNow.Add(DecisionHandoffLifetime));
     }
 
     private bool TryGetDecision(DnsDatagram request, IPEndPoint remoteEP, bool consume, out DecisionResponseDto? decision)
@@ -464,9 +593,16 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
 
     private void CleanupExpired()
     {
+        // Entries orphaned by requests that never reach the blocking stage (recursion denied,
+        // allowed by another handler, ...) are swept here. Throttle the O(n) sweep so a busy
+        // resolver does not rescan the whole dictionary on every query.
         if (_decisions.Count < 4096)
             return;
         DateTime now = DateTime.UtcNow;
+        long last = Interlocked.Read(ref _lastCleanupTicks);
+        if (now.Ticks - last < CleanupInterval.Ticks ||
+            Interlocked.CompareExchange(ref _lastCleanupTicks, now.Ticks, last) != last)
+            return;
         foreach ((string key, CachedDecision value) in _decisions)
         {
             if (value.ExpiresUtc <= now)
@@ -480,11 +616,13 @@ public sealed class App : IDnsApplication, IDnsRequestController, IDnsRequestBlo
     private static string? ReadNullableString(JsonElement root, string name) =>
         root.TryGetProperty(name, out JsonElement e) && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
 
+    // TryGetInt32/TryGetByte throw InvalidOperationException for non-number values, so the
+    // value kind must be checked first (e.g. "timeoutMs": "250" falls back to the default).
     private static int ReadInt(JsonElement root, string name, int fallback) =>
-        root.TryGetProperty(name, out JsonElement e) && e.TryGetInt32(out int value) ? value : fallback;
+        root.TryGetProperty(name, out JsonElement e) && e.ValueKind == JsonValueKind.Number && e.TryGetInt32(out int value) ? value : fallback;
 
     private static byte ReadByte(JsonElement root, string name, byte fallback) =>
-        root.TryGetProperty(name, out JsonElement e) && e.TryGetByte(out byte value) ? value : fallback;
+        root.TryGetProperty(name, out JsonElement e) && e.ValueKind == JsonValueKind.Number && e.TryGetByte(out byte value) ? value : fallback;
 
     private static bool ReadBool(JsonElement root, string name, bool fallback) =>
         root.TryGetProperty(name, out JsonElement e) && e.ValueKind is JsonValueKind.True or JsonValueKind.False ? e.GetBoolean() : fallback;
