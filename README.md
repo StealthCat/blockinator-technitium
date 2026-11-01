@@ -122,6 +122,16 @@ This is **not a DNS or policy cache**. Decisions are not reused across unrelated
 
 ## Installation
 
+### Download a CI build
+
+The **Build Technitium add-on** GitHub Actions workflow builds on pushes and pull requests, and can also be run manually from the **Actions** tab. It uses .NET 10 and checksum-verified Technitium **15.6.2** reference assemblies; a local Technitium installation is not needed in CI.
+
+Open a successful workflow run and download its `Blockinator_v<version>.zip` artifact. GitHub wraps the artifact in an outer ZIP: extract that download once, then upload the **contained `Blockinator_v<version>.zip`** in Technitium's **Apps** page. The inner ZIP is the installable add-on and has the same four-file root layout as the v1.2 and v1.3 releases.
+
+When a GitHub release is published, the workflow also attaches the installable ZIP directly to that release. Release assets can be uploaded to Technitium as downloaded, without extracting them. Set the project version before publishing, and use a matching tag such as `1.4.0` or `v1.4.0` (`1.4` is also accepted for project version `1.4.0`). The workflow fails if the release tag and project version differ.
+
+The Technitium archive version and SHA-256 checksum are pinned together in `.github/workflows/build.yml`. Update both when changing the CI build dependency.
+
 ### 1. Build the plugin
 
 Linux:
@@ -633,3 +643,4 @@ See [CHANGELOG.md](CHANGELOG.md) for release history.
 ## License
 
 This project is licensed under the **GNU General Public License v3.0**. See [LICENSE](LICENSE) for the full license text.
+
